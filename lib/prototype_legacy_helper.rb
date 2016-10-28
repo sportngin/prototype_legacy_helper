@@ -256,21 +256,29 @@ module PrototypeHelper
   # If you don't need to attach a form to a resource, then check out form_remote_tag.
   #
   # See FormHelper#form_for for additional semantics.
-  def remote_form_for(record_or_name_or_array, *args, &proc)
+  def remote_form_for(record, *args, &proc)
     options = args.extract_options!
 
-    case record_or_name_or_array
+    case record
     when String, Symbol
-      object_name = record_or_name_or_array
+      object_name = record
     when Array
-      object = record_or_name_or_array.last
+      object = record.last
       object_name = ActiveModel::Naming.singular(object)
-      apply_form_for_options!(record_or_name_or_array, options)
+      if Rails::VERSION::MAJOR > 3
+        apply_form_for_options!(record, record, options)
+      else
+        apply_form_for_options!(record, options)
+      end
       args.unshift object
     else
-      object      = record_or_name_or_array
-      object_name = ActiveModel::Naming.singular(record_or_name_or_array)
-      apply_form_for_options!(object, options)
+      object      = record
+      object_name = ActiveModel::Naming.singular(record)
+      if Rails::VERSION::MAJOR > 3
+        apply_form_for_options!(record, object, options)
+      else
+        apply_form_for_options!(object, options)
+      end
       args.unshift object
     end
 
